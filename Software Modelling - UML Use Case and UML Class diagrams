@@ -3,6 +3,7 @@ from prettytable import PrettyTable
 from datetime import datetime
 
 class Person:
+    '''Clas that Represents a Person'''
     def __init__(self, first_name = "", last_name = "", phone_number = "", emirates_ID = ""):
         # Protected attributes
         self._first_name = first_name
@@ -36,15 +37,17 @@ class Person:
     def set_emirates_ID(self, emirates_ID):
         self._emirates_ID = emirates_ID
 
-    def __str__(self):
+    def __str__(self):  # Default Printing
         return f"First Name: {self._first_name}, Last Name: {self._last_name}, Phone Number: {self._phone_number}, Emirates ID: {self._emirates_ID}"
 
 class InsuranceCover(Enum):
+    '''Clas that Represents a list of options in the Insurence Cover of a Patient'''
     Full = "Full"
     Half = "Half"
     No = "None"
 
 class Patient(Person):
+    '''Clas that Represents a Petient and inherits from Person'''
     def __init__(self, first_name, last_name, phone_number, emirates_ID, insurance_ID = "", 
                  insurance_cover = InsuranceCover.No, description = "", room_number = "", 
                  doctor_name_id = "", nurse_name_id = "", doctor_charges = 0.0, nurse_charges = 0.0, 
@@ -137,6 +140,7 @@ class Patient(Person):
     def get_room_charges(self):
         return self.__room_charges
     
+    # Setters and getters for appointment date
     def set_appointment_date(self, appointment_date):
         try:
             self.__appointment_date = datetime.strptime(appointment_date, "%d %B, %Y, %H:%M:%S")
@@ -149,7 +153,7 @@ class Patient(Person):
             return self.__appointment_date.strftime("%d %B, %Y, %H:%M:%S")
         else:
             return None
-        
+    # Calculating final amount
     def final_amount(self):
         if self.__insurance_cover == InsuranceCover.Full:
             return 0
@@ -157,7 +161,7 @@ class Patient(Person):
             return self.__total_charges_TAX/2
         else:
             return self.__total_charges_TAX
-    
+    # Printing Patient
     def __str__(self):
         """
         Create a string representation of Patient using PrettyTable, divided into categories
@@ -196,14 +200,15 @@ class Patient(Person):
         table3.add_row(["Insurance Cover", self.__insurance_cover.value])
         table3.add_row(["Final Amount", self.final_amount()])
         table3.add_row(["Appointment Date", self.__appointment_date.strftime('%d %B, %Y, %H:%M:%S')])
-
+        # Return all tables
         return str(table1) + "\n\n" + str(table2) + "\n\n" + str(table3)
 
 class Employee(Person):
+    '''Clas that Represents an Employee and inherits from Person'''
     def __init__(self, first_name = "", last_name = "", phone_number = "", emirates_ID = "", department = ""):
         Person.__init__(self, first_name, last_name, phone_number, emirates_ID)
         self._department = department
-    
+    # Getters and setters for Employee
     def get_department(self):
         return self._department
     
@@ -211,10 +216,11 @@ class Employee(Person):
         self._department = department
 
 class Doctor(Employee):
+    '''Class that Represents a Doctor and inherits from Employee'''
     def __init__(self, first_name = "", last_name = "", phone_number = "", emirates_ID = "", department = "", doctor_ID = ""):
         Employee.__init__(self, first_name, last_name, phone_number, emirates_ID, department)
         self.__doctor_ID = doctor_ID
-
+    # Getters and setters for Doctor
     def get_doctor_ID(self):
         return self.__doctor_ID
 
@@ -222,16 +228,18 @@ class Doctor(Employee):
         self.__doctor_ID = doctor_ID
 
 class Nurse(Employee):
+    '''Class that Represents a Nurse and inherits from Employee'''
     def __init__(self, first_name = "", last_name = "", phone_number = "", emirates_ID = "", department = "", nurse_ID = ""):
         Employee.__init__(self, first_name, last_name, phone_number, emirates_ID, department)
         self.__nurse_ID = nurse_ID
-
+    # Getters and setters for Nurse
     def get_nurse_ID(self):
         return self.__nurse_ID
 
     def set_nurse_ID(self, nurse_ID):
         self.__nurse_ID = nurse_ID
 
+# Test Case for the output asked in the exercise
 gabriel = Patient("Abdullah", "Al Suwaidi", "58 509 1023","784-1234-1234567-1", "AUH9414",InsuranceCover.No, "General Checkup", 101, "Dr.John Smith/DR-9012", "Nurse Alinda Joy/NS-9015", 500.0, 300.0, 150.0, 100.0, 250.0, "13 March, 2023, 23:55:00")
 print(gabriel)
 
