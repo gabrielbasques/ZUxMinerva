@@ -1,1 +1,240 @@
+from enum import Enum
+from prettytable import PrettyTable
+from datetime import datetime
+
+class Person:
+    def __init__(self, first_name = "", last_name = "", phone_number = "", emirates_ID = ""):
+        # Protected attributes
+        self._first_name = first_name
+        self._last_name = last_name
+        self._phone_number = phone_number
+        self._emirates_ID = emirates_ID
+        
+    # Getter methods
+    def get_first_name(self):
+        return self._first_name
+    
+    def get_last_name(self):
+        return self._last_name
+    
+    def get_phone_number(self):
+        return self._phone_number
+    
+    def get_emirates_ID(self):
+        return self._emirates_ID
+    
+    # Setter methods
+    def set_first_name(self, first_name):
+        self._first_name = first_name
+        
+    def set_last_name(self, last_name):
+        self._last_name = last_name
+        
+    def set_phone_number(self, phone_number):
+        self._phone_number = phone_number
+        
+    def set_emirates_ID(self, emirates_ID):
+        self._emirates_ID = emirates_ID
+
+    def __str__(self):
+        return f"First Name: {self._first_name}, Last Name: {self._last_name}, Phone Number: {self._phone_number}, Emirates ID: {self._emirates_ID}"
+
+class InsuranceCover(Enum):
+    Full = "Full"
+    Half = "Half"
+    No = "None"
+
+class Patient(Person):
+    def __init__(self, first_name, last_name, phone_number, emirates_ID, insurance_ID = "", 
+                 insurance_cover = InsuranceCover.No, description = "", room_number = "", 
+                 doctor_name_id = "", nurse_name_id = "", doctor_charges = 0.0, nurse_charges = 0.0, 
+                 hospital_charges = 0.0, pharmacy_charges = 0.0, room_charges = 0.0, appointment_date = "") :
+        
+        # Using Person.__init__ instead of super()
+        Person.__init__(self, first_name, last_name, phone_number, emirates_ID)
+        
+        self.__insurance_ID = insurance_ID
+        self.__insurance_cover = insurance_cover
+        self.__description = description
+        self.__room_number = room_number
+        self.__doctor_name_id = doctor_name_id
+        self.__nurse_name_id = nurse_name_id
+        self.__doctor_charges = doctor_charges
+        self.__nurse_charges = nurse_charges
+        self.__hospital_charges = hospital_charges
+        self.__pharmacy_charges = pharmacy_charges
+        self.__room_charges = room_charges
+        self.__total_charges = (doctor_charges + nurse_charges + hospital_charges + pharmacy_charges + room_charges)
+        self.__total_charges_TAX = (doctor_charges + nurse_charges + hospital_charges + pharmacy_charges + room_charges)*1.05
+        self.__final_amount = 0.0
+        self.__appointment_date = datetime.strptime(appointment_date, '%d %B, %Y, %H:%M:%S')
+
+    # Getters and setters for Patient
+
+    def set_insurance_ID(self, insurance_ID):
+        self.__insurance_ID = insurance_ID
+    
+    def get_insurance_ID(self):
+        return self.__insurance_ID
+    
+    def set_insurance_cover(self, insurance_cover):
+        self.__insurance_cover = InsuranceCover.insurance_cover
+    
+    def get_insurance_cover(self):
+        return self.__insurance_cover
+    
+    def set_description(self, description):
+        self.__description = description
+    
+    def get_description(self):
+        return self.__description
+    
+    def set_room_number(self, room_number):
+        self.__room_number = room_number
+    
+    def get_room_number(self):
+        return self.__room_number
+    
+    def set_doctor_name_id(self, doctor_name_id):
+        self.__doctor_name_id = doctor_name_id
+    
+    def get_doctor_name_id(self):
+        return self.__doctor_name_id
+    
+    def set_nurse_name_id(self, nurse_name_id):
+        self.__nurse_name_id = nurse_name_id
+    
+    def get_nurse_name_id(self):
+        return self.__nurse_name_id
+    
+    def set_doctor_charges(self, doctor_charges):
+        self.__doctor_charges = doctor_charges
+    
+    def get_doctor_charges(self):
+        return self.__doctor_charges
+    
+    def set_nurse_charges(self, nurse_charges):
+        self.__nurse_charges = nurse_charges
+    
+    def get_nurse_charges(self):
+        return self.__nurse_charges
+    
+    def set_hospital_charges(self, hospital_charges):
+        self.__hospital_charges = hospital_charges
+    
+    def get_hospital_charges(self):
+        return self.__hospital_charges
+    
+    def set_pharmacy_charges(self, pharmacy_charges):
+        self.__pharmacy_charges = pharmacy_charges
+    
+    def get_pharmacy_charges(self):
+        return self.__pharmacy_charges
+    
+    def set_room_charges(self, room_charges):
+        self.__room_charges = room_charges
+    
+    def get_room_charges(self):
+        return self.__room_charges
+    
+    def set_appointment_date(self, appointment_date):
+        try:
+            self.__appointment_date = datetime.strptime(appointment_date, "%d %B, %Y, %H:%M:%S")
+        except ValueError as ve:
+            print(f"Error parsing date: {ve}")
+            self.__appointment_date = None
+
+    def get_appointment_date(self):
+        if self.__appointment_date:
+            return self.__appointment_date.strftime("%d %B, %Y, %H:%M:%S")
+        else:
+            return None
+        
+    def final_amount(self):
+        if self.__insurance_cover == InsuranceCover.Full:
+            return 0
+        elif self.__insurance_cover == InsuranceCover.Half:
+            return self.__total_charges_TAX/2
+        else:
+            return self.__total_charges_TAX
+    
+    def __str__(self):
+        """
+        Create a string representation of Patient using PrettyTable, divided into categories
+        """
+
+        # Adding Person class attributes
+        table1 = PrettyTable()
+        table1.title = "Personal Information"
+        table1.field_names = ["Attribute", "Value"]
+        person_str = Person.__str__(self).split(", ")
+        for attr_value in person_str:
+            name, value = attr_value.split(": ")
+            table1.add_row([name, value])
+        table1.add_row(["Insurance ID", self.__insurance_ID])
+
+        # Room and Staff Information
+        table2 = PrettyTable()
+        table2.title = "Room and Staff Information"
+        table2.field_names = ["Attribute", "Value"]
+        table2.add_row(["Room Number", self.__room_number])
+        table2.add_row(["Description", self.__description])
+        table2.add_row(["Doctor Name, ID", self.__doctor_name_id])
+        table2.add_row(["Nurse Name, ID", self.__nurse_name_id])
+
+        # Charges Information
+        table3 = PrettyTable()
+        table3.title = "Billing Details"
+        table3.field_names = ["Attribute", "Value"]
+        table3.add_row(["Doctor Charges", self.__doctor_charges])
+        table3.add_row(["Nurse Charges", self.__nurse_charges])
+        table3.add_row(["Hospital Charges", self.__hospital_charges])
+        table3.add_row(["Pharmacy Charges", self.__pharmacy_charges])
+        table3.add_row(["Room Charges", self.__room_charges])
+        table3.add_row(["TAX", self.__total_charges*0.05])
+        table3.add_row(["Total", self.__total_charges_TAX])
+        table3.add_row(["Insurance Cover", self.__insurance_cover.value])
+        table3.add_row(["Final Amount", self.final_amount()])
+        table3.add_row(["Appointment Date", self.__appointment_date.strftime('%d %B, %Y, %H:%M:%S')])
+
+        return str(table1) + "\n\n" + str(table2) + "\n\n" + str(table3)
+
+class Employee(Person):
+    def __init__(self, first_name = "", last_name = "", phone_number = "", emirates_ID = "", department = ""):
+        Person.__init__(self, first_name, last_name, phone_number, emirates_ID)
+        self._department = department
+    
+    def get_department(self):
+        return self._department
+    
+    def set_department(self, department):
+        self._department = department
+
+class Doctor(Employee):
+    def __init__(self, first_name = "", last_name = "", phone_number = "", emirates_ID = "", department = "", doctor_ID = ""):
+        Employee.__init__(self, first_name, last_name, phone_number, emirates_ID, department)
+        self.__doctor_ID = doctor_ID
+
+    def get_doctor_ID(self):
+        return self.__doctor_ID
+
+    def set_doctor_ID(self, doctor_ID):
+        self.__doctor_ID = doctor_ID
+
+class Nurse(Employee):
+    def __init__(self, first_name = "", last_name = "", phone_number = "", emirates_ID = "", department = "", nurse_ID = ""):
+        Employee.__init__(self, first_name, last_name, phone_number, emirates_ID, department)
+        self.__nurse_ID = nurse_ID
+
+    def get_nurse_ID(self):
+        return self.__nurse_ID
+
+    def set_nurse_ID(self, nurse_ID):
+        self.__nurse_ID = nurse_ID
+
+gabriel = Patient("Abdullah", "Al Suwaidi", "58 509 1023","784-1234-1234567-1", "AUH9414",InsuranceCover.No, "General Checkup", 101, "Dr.John Smith/DR-9012", "Nurse Alinda Joy/NS-9015", 500.0, 300.0, 150.0, 100.0, 250.0, "13 March, 2023, 23:55:00")
+print(gabriel)
+
+
+
 
