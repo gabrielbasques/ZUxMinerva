@@ -1,0 +1,157 @@
+from enum import Enum
+
+# Define the Restaurant class that will manage the branches and the common menu
+class Restaurant:
+    def __init__(self, name):
+        self.name = name  # Name of the restaurant
+        self.branches = []  # List to store branches
+        self.menu = Menu()  # Create a new menu for the restaurant
+
+    # Method to update the menu across all branches
+    def update_menu(self, new_menu):
+        self.menu = new_menu
+        # Update the menu for each branch
+        for branch in self.branches:
+            branch.menu = new_menu
+
+# Define the Branch class for individual restaurant locations
+class Branch:
+    def __init__(self, address, phone_number, manager):
+        self.address = address  # Address of the branch
+        self.phone_number = phone_number  # Contact number
+        self.manager = manager  # The manager of the branch
+        self.staff = [manager]  # Start with a manager in the staff list
+        self.menu = None  # The branch's menu is initially empty
+
+    # Add a staff member to the branch
+    def add_staff(self, staff_member):
+        self.staff.append(staff_member)
+
+# Define the Menu class to manage the items being served
+class Menu:
+    def __init__(self):
+        self.items = []  # List to store menu items
+
+    # Add a new item to the menu
+    def add_item(self, name, description, price):
+        self.items.append({'name': name, 'description': description, 'price': price})
+
+    # Return a string representation of the menu
+    def __str__(self):
+        menu_str = ''
+        # Construct the menu string from the items list
+        for item in self.items:
+            menu_str += f"Name: {item['name']}, Description: {item['description']}, Price: {item['price']}\n"
+        return menu_str
+
+# Static class to hold the service type costs
+class ServiceType:
+    costs = {'Dine-In': 3, 'Take Away': 4, 'Delivery': 5}
+
+# Define the Staff class to represent employees
+class Staff:
+    def __init__(self, staff_id, name, position):
+        self.staff_id = staff_id  # Unique ID for the staff member
+        self.name = name  # Name of the staff member
+        self.position = position  # Job position within the restaurant
+
+# Define the Customer class to manage customer information
+class Customer:
+    def __init__(self, customer_id, name, phone_number):
+        self.customer_id = customer_id  # Unique ID for the customer
+        self.name = name  # Name of the customer
+        self.phone_number = phone_number  # Contact number
+
+# Define the Order class to manage orders placed by customers
+class Order:
+    def __init__(self, customer, branch, service_type):
+        self.customer = customer  # The customer placing the order
+        self.branch = branch  # The branch where the order is placed
+        self.service_type = service_type  # Service type chosen for the order
+        self.ordered_items = []  # List to store the items ordered
+        self.total_cost = 0  # Initialize the total cost of the order
+
+    # Add an item to the order and update the total cost
+    def add_item(self, item):
+        self.ordered_items.append(item)
+        self.total_cost += item['price']
+
+    # Finalize the order and create a bill
+    def checkout(self):
+        return Bill(self)
+
+# Define the Bill class to handle billing for orders
+class Bill:
+    def __init__(self, order):
+        self.order_details = order  # Reference to the order
+        self.VAT = 0.05  # VAT percentage
+
+    # Calculate the total bill amount including VAT and service cost
+    def generate_bill(self):
+        subtotal = self.order_details.total_cost + ServiceType.costs[self.order_details.service_type]
+        total_amount = subtotal + (subtotal * self.VAT)
+        return total_amount
+
+    # Return a string representation of the bill
+    def __str__(self):
+        bill_str = f"Order Details:\nCustomer: {self.order_details.customer.name}\nBranch: {self.order_details.branch.address}\nOrdered Items:"
+        for item in self.order_details.ordered_items:
+            bill_str += f"\n- {item['name']}, Price: {item['price']}"
+        bill_str += f"\nService Type: {self.order_details.service_type}, Cost: {ServiceType.costs[self.order_details.service_type]}"
+        bill_str += f"\nTotal (including 5% VAT): {self.generate_bill()}"
+        return bill_str
+
+# Example usage:
+
+# Display a greeting message
+print("Welcome to Happy Tummy Restaurant Management System!\n")
+
+# Creating a new instance of Restaurant
+restaurant = Restaurant("Happy Tummy")
+print(f"A new restaurant named '{restaurant.name}' has been created.\n")
+
+# Creating instances of Branch, which are part of the Restaurant
+branch1 = Branch("101 Downtown St", "123-456-7890", Staff(1, "Alice", "Manager"))
+branch2 = Branch("202 Uptown Ave", "987-654-3210", Staff(2, "Bob", "Manager"))
+
+# Adding the created branches to the restaurant's list of branches
+restaurant.branches.extend([branch1, branch2])
+print(f"Two branches have been added to '{restaurant.name}'.\n")
+
+# Creating a list of menu items
+menu_items = [
+    {'name': 'Burger', 'description': 'Cheeseburger with fries', 'price': 15},
+    {'name': 'Pasta', 'description': 'Pasta with marinara sauce', 'price': 20},
+    {'name': 'Salad', 'description': 'Fresh garden salad', 'price': 10}
+]
+
+# Adding menu items to the restaurant's menu
+for item in menu_items:
+    restaurant.menu.add_item(**item)
+
+# Displaying the updated menu
+print(f"The menu has been updated with new items:\n{restaurant.menu}")
+
+# Creating instances of Customer
+customer1 = Customer(1, "John Doe", "111-222-3333")
+customer2 = Customer(2, "Jane Smith", "444-555-6666")
+
+# Creating instances of Order for customers at different branches
+order1 = Order(customer1, branch1, 'Dine-In')
+order1.add_item(menu_items[0])  # Burger is added to the order
+order1.add_item(menu_items[1])  # Pasta is added to the order
+
+# Creating a Bill for order1 and printing it
+bill1 = order1.checkout()
+print(f"\nBill for Customer {order1.customer.name}:\n{bill1}")
+
+# Creating another Order and corresponding Bill
+order2 = Order(customer2, branch2, 'Take Away')
+order2.add_item(menu_items[2])  # Salad is added to the order
+
+# Creating a Bill for order2 and printing it
+bill2 = order2.checkout()
+print(f"\nBill for Customer {order2.customer.name}:\n{bill2}")
+
+# Closing message of the example usage
+print("\nThank you for using Happy Tummy Restaurant Management System!")
